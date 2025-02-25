@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <form id="contactForm" onsubmit="handleSubmit(event)">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input 
+                type="text" 
+                id="name" 
+                name="Name" 
+                pattern="^[A-Za-z]+\s+[A-Za-z]+$"
+                title="Please enter both first and last name"
+                placeholder="John Smith"
+                required
+            >
+        </div>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="Email" required>
+        </div>
+        <div class="form-group">
+            <label for="cardNumber">Card Number:</label>
+            <input 
+                type="text" 
+                id="cardNumber" 
+                name="Card Number"
+                pattern="[0-9]{4} [0-9]{4} [0-9]{4} [0-9]{4}"
+                inputmode="numeric"
+                title="Please enter a valid 16-digit card number"
+                placeholder="1234 5678 9012 3456"
+                maxlength="19"
+                required
+            >
+        </div>
+        <button type="submit">Send Email</button>
+    </form>
+
+    <script>
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = value.replace(/(.{4})/g, '$1 ').trim();
+            e.target.value = formattedValue;
+        });
+
+        function isValidName(name) {
+            const parts = name.trim().split(/\s+/);
+            return parts.length >= 2 && parts[0].length > 0 && parts[1].length > 0;
+        }
+
+        function isValidCardNumber(number) {
+            const digits = number.replace(/\s/g, '').split('').map(Number);
+            let sum = 0;
+            let isEven = false;
+            
+            for (let i = digits.length - 1; i >= 0; i--) {
+                let digit = digits[i];
+
+                if (isEven) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit -= 9;
+                    }
+                }
+
+                sum += digit;
+                isEven = !isEven;
+            }
+
+            return sum % 10 === 0;
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            if (!isValidName(name)) {
+                alert('Please enter both first and last name');
+                return;
+            }
+
+            const cardNumber = document.getElementById('cardNumber').value;
+            if (!isValidCardNumber(cardNumber)) {
+                alert('Please enter a valid card number');
+                return;
+            }
+            
+            const email = document.getElementById('email').value;
+
+            const body = encodeURIComponent(`
+Name: ${name}
+Email: ${email}
+Card Number: ${cardNumber}`);
+
+            window.location.href = "mailto:challenge@dn-uk.com?subject=Form Submission&body=" + body;
+        }
+    </script>
+</body>
+</html>
